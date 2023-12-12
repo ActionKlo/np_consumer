@@ -16,6 +16,7 @@ services:
     depends_on:
       bd:
         condition: service_healthy
+    command: /bin/sh -c "cd /app && make gooseUp && cd /app/cmd/consumer && ./app"
 
   bd:
     image: postgres:16-alpine
