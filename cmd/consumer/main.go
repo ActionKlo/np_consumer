@@ -1,12 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"np_consumer/config"
 	"np_consumer/internal/kafka"
+	"np_consumer/logger"
 )
 
 func main() {
-	fmt.Println("Hello Consumer!")
+	cfg := config.New()
+	log := logger.Init()
 
-	kafka.Reader()
+	k := kafka.NewKafka(log, *cfg)
+	if err := k.Reader(); err != nil {
+		log.Error("kafka reader fall down")
+	}
 }

@@ -3,36 +3,49 @@ package kafka
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
 	"github.com/segmentio/kafka-go"
-	"log"
-	"os"
+	"go.uber.org/zap"
+	"np_consumer/config"
 )
 
-func Reader() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
+type ServiceKafka struct {
+	logger *zap.Logger
+	config config.Config
+}
+
+func NewKafka(logger *zap.Logger, config config.Config) *ServiceKafka {
+	return &ServiceKafka{
+		logger: logger,
+		config: config,
 	}
-	brokerUrl := os.Getenv("HOST") + ":9094"
+}
+
+func (k *ServiceKafka) Reader() error {
+	k.logger.Info("kafka consumer started")
+
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{brokerUrl},
-		Topic:     "test-topic",
-		Partition: 0,
+		Brokers: []string{k.config.KafkaExternalHost},
+		//GroupID:   k.config.KafkaGroupID, // uncomment after start work with db
+		Topic:     k.config.KafkaTopic,
+		Partition: k.config.KafkaPartition,
 		MaxBytes:  10e6, // 10MB
 	})
-
-	fmt.Println("Consumer started")
 
 	for {
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
-			fmt.Println(err)
+			k.logger.Error("error read message: ", zap.Error(err))
 			break
 		}
+
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 	}
 
 	if err := r.Close(); err != nil {
-		log.Fatal("failed to close reader:", err)
+		k.logger.Error("failed to close reader:", zap.Error(err))
+		return err
 	}
+
+	k.logger.Info("kafka consumer ended")
+	return nil
 }
