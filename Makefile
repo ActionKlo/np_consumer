@@ -4,9 +4,9 @@ include .env
 gooseUp:
 	goose -dir internal/db/migrations postgres postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB} up
 gooseReset:
-	goose -dir internal/db/migrations postgres postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST}:${PORT_DB}/${POSTGRES_DB} reset
+	goose -dir internal/db/migrations postgres postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB} reset
 gooseVal:
-	goose -dir internal/db/migrations postgres postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST}:${PORT_DB}/${POSTGRES_DB} validate
+	goose -dir internal/db/migrations postgres postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB} validate
 
 check:
-	echo ${HOST}
+	echo ${DB_HOST}
