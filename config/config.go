@@ -16,6 +16,11 @@ type Config struct {
 	KafkaPartition    int    `mapstructure:"KAFKA_PARTITION"`
 }
 
+//type Services struct {
+//	Db    db.DB
+//	Kafka kafka.ServiceKafka
+//}
+
 func New() *Config {
 	var appConfig Config
 	v := viper.New()
