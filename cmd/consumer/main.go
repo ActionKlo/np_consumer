@@ -12,12 +12,12 @@ func main() {
 	cfg := config.New()
 	log := logger.Init()
 
-	dbStr, err := db.NewDB()
+	dbCfg, err := db.CreateDB(cfg)
 	if err != nil {
 		log.Fatal("failed create pgxpool:", zap.Error(err))
 	}
 
-	k := kafka.NewKafka(log, *cfg, dbStr)
+	k := kafka.NewKafka(log, *cfg, dbCfg)
 	if err := k.Reader(); err != nil {
 		log.Fatal("kafka reader fall down")
 	}

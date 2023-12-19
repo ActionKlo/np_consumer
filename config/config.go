@@ -6,10 +6,13 @@ import (
 )
 
 type Config struct {
+	DBHost string `mapstructure:"DB_HOST"`
+	DBPort string `mapstructure:"DB_PORT"`
+
 	PostgresUser     string `mapstructure:"POSTGRES_USER"`
 	PostgresPassword string `mapstructure:"POSTGRES_PASSWORD"`
 	PostgresDB       string `mapstructure:"POSTGRES_DB"`
-	//KafkaHost         string `mapstructure:"KAFKA_HOST"`
+
 	KafkaExternalHost string `mapstructure:"KAFKA_EXTERNAL_HOST"`
 	KafkaGroupID      string `mapstructure:"KAFKA_GROUPID"`
 	KafkaTopic        string `mapstructure:"KAFKA_TOPIC"`
