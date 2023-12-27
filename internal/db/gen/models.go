@@ -5,23 +5,48 @@
 package gen
 
 import (
-	"time"
+	"database/sql"
+
+	"github.com/google/uuid"
 )
 
-type Message struct {
-	ID          string
-	Time        time.Time
-	Sender      string
-	Tracknumber string
-	Country     string
-	City        string
-	Street      string
-	Postcode    string
+type Address struct {
+	AddressID uuid.UUID
+	Country   string
+	Street    string
+	City      string
+	ZipCode   string
 }
 
-type Status struct {
-	ID        string
-	Messageid string
-	Status    string
-	Time      time.Time
+type Customer struct {
+	CustomerID        uuid.UUID
+	CustomerAddressID uuid.UUID
+	Name              string
+	LastName          string
+	Email             string
+	PhoneNumber       string
+}
+
+type Sender struct {
+	SenderID        uuid.UUID
+	SenderAddressID uuid.UUID
+	Name            string
+	Email           string
+	PhoneNumber     int32
+}
+
+type Shipment struct {
+	ShipmentID uuid.UUID
+	SenderID   uuid.UUID
+	CustomerID uuid.UUID
+	Size       string
+	Weight     float32
+	Count      int32
+}
+
+type StatusEvent struct {
+	StatusID         uuid.UUID
+	ShipmentID       uuid.UUID
+	EventTimestamp   sql.NullTime
+	EventDescription string
 }

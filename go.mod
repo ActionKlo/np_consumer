@@ -3,6 +3,7 @@ module np_consumer
 go 1.20
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.26.3
 	github.com/google/uuid v1.4.0
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/segmentio/kafka-go v0.4.46

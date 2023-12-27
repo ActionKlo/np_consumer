@@ -1,30 +1,59 @@
 -- +goose Up
-CREATE TABLE messages (
-    ID  varchar unique primary key,
-    Time timestamp not null,
-    Sender varchar not null,
-    TrackNumber varchar not null,
-    Country varchar not null,
-    City varchar not null,
-    Street varchar not null,
-    PostCode varchar not null
+CREATE TABLE addresses (
+    address_id uuid primary key not null unique default gen_random_uuid(),
+    country varchar not null,
+    street varchar not null,
+    city varchar not null,
+    zip_code varchar not null
 );
 
-CREATE TABLE statuses (
-    ID varchar unique primary key,
-    MessageID varchar not null,
-    Status varchar not null,
-    Time timestamp not null,
-    foreign key (MessageID) references messages(ID)
+CREATE TABLE customers (
+    customer_id uuid primary key not null unique default gen_random_uuid(),
+    customer_address_id uuid not null references addresses(address_id),
+    name varchar not null,
+    last_name varchar not null,
+    email varchar not null unique,
+    phone_number varchar not null unique
+);
+
+CREATE TABLE senders (
+    sender_id uuid primary key not null unique default gen_random_uuid(),
+    sender_address_id uuid not null references addresses(address_id),
+    name varchar not null,
+    email varchar not null unique,
+    phone_number integer not null unique
+);
+
+
+CREATE TABLE shipments (
+    shipment_id uuid primary key not null unique default gen_random_uuid(),
+    sender_id uuid not null references senders(sender_id),
+    customer_id uuid not null references customers(customer_id),
+    size varchar not null,
+    weight real not null,
+    count integer not null
+);
+
+CREATE TABLE status_events (
+    status_id uuid primary key not null unique default gen_random_uuid(),
+    shipment_id uuid not null references shipments(shipment_id),
+    event_timestamp timestamp default now(),
+    event_description varchar not null
 );
 
 -- +goose StatementBegin
 -- +goose StatementEnd
 
 -- +goose Down
-DROP TABLE statuses;
+DROP TABLE status_events;
 
-DROP TABLE messages;
+DROP TABLE shipments;
+
+DROP TABLE senders;
+
+DROP TABLE customers;
+
+DROP TABLE addresses;
 
 -- +goose StatementBegin
 -- +goose StatementEnd

@@ -1,6 +1,9 @@
-package types
+package models
 
-import "time"
+import (
+	"np_consumer/internal/db/gen"
+	"time"
+)
 
 type KafkaMessage struct {
 	ID          string    `json:"ID"`
@@ -12,4 +15,14 @@ type KafkaMessage struct {
 	City        string    `json:"City"`
 	Street      string    `json:"Street"`
 	PostCode    string    `json:"PostCode"`
+}
+
+type CustomerInfo struct {
+	Address  *gen.Address  `json:"*Gen.Address"`
+	Customer *gen.Customer `json:"*Gen.Customer"`
+}
+
+type CustInf struct {
+	*gen.Address  `json:"*Gen.Address"`
+	*gen.Customer `json:"*Gen.Customer"`
 }

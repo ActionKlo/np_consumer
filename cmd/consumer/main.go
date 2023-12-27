@@ -1,24 +1,38 @@
 package main
 
 import (
+	"fmt"
 	"go.uber.org/zap"
+	"np_consumer/api/handlers"
 	"np_consumer/config"
 	"np_consumer/internal/db"
-	"np_consumer/internal/kafka"
 	"np_consumer/logger"
+	"time"
 )
 
 func main() {
-	cfg := config.New()
 	log := logger.Init()
+	cfg := config.New()
 
-	dbCfg, err := db.CreateDB(cfg)
+	d, err := db.Init(log, cfg)
 	if err != nil {
-		log.Fatal("failed create pgxpool:", zap.Error(err))
+		log.Fatal("failed to init database:", zap.Error(err))
 	}
+	t := time.Now()
 
-	k := kafka.NewKafka(log, *cfg, dbCfg)
-	if err := k.Reader(); err != nil {
-		log.Fatal("kafka reader fall down")
+	handlers.CreateSomeConsumers(d)
+
+	fmt.Println(time.Since(t))
+
+	customers, err := handlers.GetALlCustomersWithAddress(d)
+	if err != nil {
+		log.Fatal("failed to get customers", zap.Error(err))
 	}
+	_ = customers
+
+	//k := kafka.New(log, cfg)
+	//
+	//if err := k.Reader(); err != nil {
+	//	log.Fatal("kafka reader fall down")
+	//}
 }
