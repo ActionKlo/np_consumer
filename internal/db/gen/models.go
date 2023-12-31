@@ -5,7 +5,7 @@
 package gen
 
 import (
-	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -47,6 +47,6 @@ type Shipment struct {
 type StatusEvent struct {
 	StatusID         uuid.UUID
 	ShipmentID       uuid.UUID
-	EventTimestamp   sql.NullTime
+	EventTimestamp   time.Time
 	EventDescription string
 }

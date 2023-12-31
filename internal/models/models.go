@@ -1,28 +1,57 @@
 package models
 
 import (
+	"github.com/google/uuid"
 	"np_consumer/internal/db/gen"
 	"time"
 )
-
-type KafkaMessage struct {
-	ID          string    `json:"ID"`
-	Time        time.Time `json:"Time"`
-	Sender      string    `json:"Sender"`
-	Status      string    `json:"Status"`
-	TrackNumber string    `json:"TrackNumber"`
-	Country     string    `json:"Country"`
-	City        string    `json:"City"`
-	Street      string    `json:"Street"`
-	PostCode    string    `json:"PostCode"`
-}
 
 type CustomerInfo struct {
 	Address  *gen.Address  `json:"*Gen.Address"`
 	Customer *gen.Customer `json:"*Gen.Customer"`
 }
 
-type CustInf struct {
-	*gen.Address  `json:"*Gen.Address"`
-	*gen.Customer `json:"*Gen.Customer"`
-}
+type (
+	Address struct {
+		AddressID uuid.UUID
+		Country   string
+		City      string
+		Street    string
+		Zip       string
+	}
+
+	Customer struct {
+		CustomerID  uuid.UUID
+		Name        string
+		LastName    string
+		Email       string
+		PhoneNumber string
+		Address     Address
+	}
+	Sender struct {
+		SenderID    uuid.UUID
+		Name        string
+		LastName    string
+		Email       string
+		PhoneNumber string
+		Address     Address
+	}
+
+	Event struct {
+		EventID          uuid.UUID
+		EventTime        time.Time
+		EventDescription string
+	}
+
+	Shipment struct {
+		ShipmentID uuid.UUID
+		Size       string
+		Weight     float64
+		Count      int
+
+		Customer Customer
+		Sender   Sender
+
+		Event Event
+	}
+)

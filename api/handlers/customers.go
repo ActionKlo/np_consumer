@@ -11,7 +11,7 @@ import (
 	"sync"
 )
 
-func CreateSomeConsumers(d *db.ServiceDB) {
+func CreateSomeCustomers(d *db.ServiceDB) {
 	var wg sync.WaitGroup
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
@@ -34,7 +34,7 @@ func CreateSomeConsumers(d *db.ServiceDB) {
 
 			err := d.CreateCustomer(newCustomer)
 			if err != nil {
-				log.Fatal("failed to create new customer:", zap.Error(err))
+				d.Logger.Error("failed to create new customer:", zap.Error(err))
 			}
 		}(i)
 	}

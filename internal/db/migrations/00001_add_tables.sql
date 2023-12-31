@@ -37,7 +37,7 @@ CREATE TABLE shipments (
 CREATE TABLE status_events (
     status_id uuid primary key not null unique default gen_random_uuid(),
     shipment_id uuid not null references shipments(shipment_id),
-    event_timestamp timestamp default now(),
+    event_timestamp timestamp default now() not null,
     event_description varchar not null
 );
 
