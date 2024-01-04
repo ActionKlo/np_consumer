@@ -27,6 +27,13 @@ type Customer struct {
 	PhoneNumber       string
 }
 
+type Event struct {
+	EventID          uuid.UUID
+	ShipmentID       uuid.UUID
+	EventTimestamp   time.Time
+	EventDescription string
+}
+
 type Sender struct {
 	SenderID        uuid.UUID
 	SenderAddressID uuid.UUID
@@ -40,13 +47,6 @@ type Shipment struct {
 	SenderID   uuid.UUID
 	CustomerID uuid.UUID
 	Size       string
-	Weight     float32
+	Weight     float64
 	Count      int32
-}
-
-type StatusEvent struct {
-	StatusID         uuid.UUID
-	ShipmentID       uuid.UUID
-	EventTimestamp   time.Time
-	EventDescription string
 }

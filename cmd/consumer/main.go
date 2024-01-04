@@ -1,10 +1,7 @@
 package main
 
 import (
-	"go.uber.org/zap"
 	"np_consumer/config"
-	"np_consumer/internal/db"
-	"np_consumer/internal/kafka"
 	"np_consumer/logger"
 )
 
@@ -12,14 +9,15 @@ func main() {
 	log := logger.Init()
 	cfg := config.New()
 
-	serviceDB, err := db.Init(log, cfg)
-	if err != nil {
-		log.Fatal("failed to init database:", zap.Error(err))
-	}
+	kafkaCfg := cfg.NewKafkaConfig(log)
+	k := kafkaCfg.KafkaService
 
-	k := kafka.New(log, cfg, serviceDB)
+	dbCfg := cfg.NewDBConfig(log)
+	dbService := dbCfg.DBService
 
-	if err := k.Reader(); err != nil {
+	//k := cfg.NewKafkaConfig().KafkaService // just reminder
+
+	if err := k.Reader(dbService); err != nil {
 		log.Fatal("kafka reader fall down")
 	}
 }

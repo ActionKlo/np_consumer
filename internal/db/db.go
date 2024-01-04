@@ -3,22 +3,32 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
-	"np_consumer/config"
 	"np_consumer/internal/db/gen"
 	"np_consumer/internal/models"
 	"strconv"
 )
 
-type ServiceDB struct {
-	Pool   *pgxpool.Pool
-	Logger *zap.Logger
+type Config struct {
+	DBHost string
+	DBPort string
+
+	PostgresUser     string
+	PostgresPassword string
+	PostgresDB       string
 }
 
-func Init(logger *zap.Logger, cfg *config.Config) (*ServiceDB, error) {
+type Service struct {
+	pool   *pgxpool.Pool
+	logger *zap.Logger
+	config *Config
+}
+
+func Init(logger *zap.Logger, cfg *Config) (*Service, error) {
 	urlDB := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		cfg.PostgresUser,
 		cfg.PostgresPassword,
@@ -37,9 +47,9 @@ func Init(logger *zap.Logger, cfg *config.Config) (*ServiceDB, error) {
 		return nil, err
 	}
 
-	return &ServiceDB{
-		Pool:   dbPool,
-		Logger: logger,
+	return &Service{
+		pool:   dbPool,
+		logger: logger,
 	}, nil
 }
 
@@ -56,63 +66,10 @@ func BeginTransaction(pool *pgxpool.Pool) (*gen.Queries, *sql.Tx, error) {
 	return qtx, tx, nil
 }
 
-func (d *ServiceDB) CreateCustomer(customer *models.CustomerInfo) error {
-	//qtx, tx, err := BeginTransaction(d.Pool)
-	//if err != nil {
-	//	d.Logger.Error("failed to create query transaction:", zap.Error(err))
-	//	return err
-	//}
-	//defer tx.Rollback()
-	//
-	//addressID, err := qtx.CreateCustomerAddress(context.Background(), gen.CreateCustomerAddressParams{
-	//	Country: customer.Address.Country,
-	//	Street:  customer.Address.Street,
-	//	City:    customer.Address.City,
-	//	ZipCode: customer.Address.ZipCode,
-	//})
-	//
-	//if err != nil {
-	//	d.Logger.Error("failed to create customer address:", zap.Error(err))
-	//	return err
-	//}
-	//
-	//customerID, err := qtx.CreateCustomer(context.Background(), gen.CreateCustomerParams{
-	//	CustomerAddressID: addressID,
-	//	Name:              customer.Customer.Name,
-	//	Email:             customer.Customer.Email,
-	//	PhoneNumber:       customer.Customer.PhoneNumber,
-	//})
-	//if err != nil {
-	//	d.Logger.Error("failed to create customer:", zap.Error(err))
-	//	return err
-	//}
-	//d.Logger.Info("customer created:", zap.Any("customer id:", customerID))
-	//
-	//return tx.Commit()
-	return nil
-}
-
-func (d *ServiceDB) GetAllCustomers() ([]gen.GetAllCustomersRow, error) {
-	conn := stdlib.OpenDBFromPool(d.Pool)
-	defer conn.Close()
-
-	q := gen.New(conn)
-
-	res, err := q.GetAllCustomers(context.Background())
+func (d *Service) SaveOrder(ms models.Shipment) error {
+	qtx, tx, err := BeginTransaction(d.pool)
 	if err != nil {
-		d.Logger.Error("failed to get customers:", zap.Error(err))
-		return nil, err
-	}
-
-	fmt.Println(res[0])
-
-	return res, nil
-}
-
-func (d *ServiceDB) SaveMeessage(ms models.Shipment) error {
-	qtx, tx, err := BeginTransaction(d.Pool)
-	if err != nil {
-		d.Logger.Error("failed to create query transaction:", zap.Error(err))
+		d.logger.Error("failed to create query transaction:", zap.Error(err))
 		return err
 	}
 	defer tx.Rollback()
@@ -160,20 +117,16 @@ func (d *ServiceDB) SaveMeessage(ms models.Shipment) error {
 		SenderID:   ms.Sender.SenderID,
 		CustomerID: ms.Customer.CustomerID,
 		Size:       ms.Size,
-		Weight:     float32(ms.Weight),
+		Weight:     ms.Weight,
 		Count:      int32(ms.Count),
 	})
-
+	err = errors.New("Test")
 	err = qtx.CreateEvent(context.Background(), gen.CreateEventParams{
-		StatusID:         ms.Event.EventID,
+		EventID:          ms.Event.EventID,
 		ShipmentID:       ms.ShipmentID,
 		EventTimestamp:   ms.Event.EventTime,
 		EventDescription: ms.Event.EventDescription,
 	})
-
-	if err != nil {
-		return err
-	}
 
 	return tx.Commit()
 }

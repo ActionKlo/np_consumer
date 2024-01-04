@@ -24,7 +24,7 @@ type CreateShipmentParams struct {
 	SenderID   uuid.UUID
 	CustomerID uuid.UUID
 	Size       string
-	Weight     float32
+	Weight     float64
 	Count      int32
 }
 

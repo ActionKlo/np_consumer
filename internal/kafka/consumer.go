@@ -6,32 +6,30 @@ import (
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
-	"log"
-	"np_consumer/config"
 	"np_consumer/internal/db"
 	"np_consumer/internal/models"
 )
 
-type ServiceKafka struct {
-	logger    *zap.Logger
-	config    *config.Config
-	serviceDB *db.ServiceDB
+type Config struct {
+	KafkaExternalHost string
+	KafkaGroupID      string
+	KafkaTopic        string
+	KafkaPartition    int
 }
 
-func New(logger *zap.Logger, config *config.Config, serviceDB *db.ServiceDB) *ServiceKafka {
-	serviceDB, err := db.Init(logger, config)
-	if err != nil {
-		log.Fatal("failed to create new db service", zap.Error(err))
-	}
+type Service struct {
+	logger *zap.Logger
+	config *Config
+}
 
-	return &ServiceKafka{
-		logger:    logger,
-		config:    config,
-		serviceDB: serviceDB,
+func New(logger *zap.Logger, config *Config) *Service {
+	return &Service{
+		logger: logger,
+		config: config,
 	}
 }
 
-func (k *ServiceKafka) Reader() error {
+func (k *Service) Reader(dbService *db.Service) error {
 	k.logger.Info("kafka consumer started")
 
 	r := kafka.NewReader(kafka.ReaderConfig{
@@ -41,8 +39,6 @@ func (k *ServiceKafka) Reader() error {
 		Partition: k.config.KafkaPartition,
 		MaxBytes:  10e6,
 	})
-
-	r.SetOffset(19818)
 
 	for {
 		m, err := r.ReadMessage(context.Background())
@@ -58,7 +54,7 @@ func (k *ServiceKafka) Reader() error {
 		}
 
 		go func(ms models.Shipment) {
-			err = k.serviceDB.SaveMeessage(ms)
+			err = dbService.SaveOrder(ms)
 			if err != nil {
 				k.logger.Error("failed to insert message", zap.Error(err))
 			}

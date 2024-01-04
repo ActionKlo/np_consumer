@@ -13,15 +13,15 @@ import (
 )
 
 const createEvent = `-- name: CreateEvent :exec
-INSERT INTO status_events (
-    status_id, shipment_id, event_timestamp, event_description
+INSERT INTO events (
+    event_id, shipment_id, event_timestamp, event_description
 ) VALUES (
     $1, $2, $3, $4
 )ON CONFLICT DO NOTHING
 `
 
 type CreateEventParams struct {
-	StatusID         uuid.UUID
+	EventID          uuid.UUID
 	ShipmentID       uuid.UUID
 	EventTimestamp   time.Time
 	EventDescription string
@@ -29,7 +29,7 @@ type CreateEventParams struct {
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
 	_, err := q.db.ExecContext(ctx, createEvent,
-		arg.StatusID,
+		arg.EventID,
 		arg.ShipmentID,
 		arg.EventTimestamp,
 		arg.EventDescription,

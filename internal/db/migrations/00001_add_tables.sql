@@ -21,7 +21,7 @@ CREATE TABLE senders (
     sender_address_id uuid not null references addresses(address_id),
     name varchar not null,
     email varchar not null unique,
-    phone_number integer not null unique
+    phone_number int not null unique
 );
 
 
@@ -30,12 +30,12 @@ CREATE TABLE shipments (
     sender_id uuid not null references senders(sender_id),
     customer_id uuid not null references customers(customer_id),
     size varchar not null,
-    weight real not null,
+    weight double precision not null,
     count integer not null
 );
 
-CREATE TABLE status_events (
-    status_id uuid primary key not null unique default gen_random_uuid(),
+CREATE TABLE events (
+    event_id uuid primary key not null unique default gen_random_uuid(),
     shipment_id uuid not null references shipments(shipment_id),
     event_timestamp timestamp default now() not null,
     event_description varchar not null
@@ -45,7 +45,7 @@ CREATE TABLE status_events (
 -- +goose StatementEnd
 
 -- +goose Down
-DROP TABLE status_events;
+DROP TABLE events;
 
 DROP TABLE shipments;
 
