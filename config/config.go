@@ -23,8 +23,8 @@ type Config struct {
 }
 
 type Services struct {
-	KafkaService *kafka.Service
-	DBService    *db.Service
+	Kafka *kafka.Service
+	DB    *db.Service
 }
 
 func New() *Config {
@@ -52,7 +52,7 @@ func (c *Config) NewKafkaConfig(logger *zap.Logger) *Services {
 	})
 
 	return &Services{
-		KafkaService: kafkaConfig,
+		Kafka: kafkaConfig,
 	}
 }
 
@@ -69,6 +69,6 @@ func (c *Config) NewDBConfig(logger *zap.Logger) *Services {
 	}
 
 	return &Services{
-		DBService: dbConfig,
+		DB: dbConfig,
 	}
 }

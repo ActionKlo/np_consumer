@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
@@ -120,7 +119,7 @@ func (d *Service) SaveOrder(ms models.Shipment) error {
 		Weight:     ms.Weight,
 		Count:      int32(ms.Count),
 	})
-	err = errors.New("Test")
+
 	err = qtx.CreateEvent(context.Background(), gen.CreateEventParams{
 		EventID:          ms.Event.EventID,
 		ShipmentID:       ms.ShipmentID,

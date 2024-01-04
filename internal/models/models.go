@@ -2,14 +2,8 @@ package models
 
 import (
 	"github.com/google/uuid"
-	"np_consumer/internal/db/gen"
 	"time"
 )
-
-type CustomerInfo struct {
-	Address  *gen.Address  `json:"*Gen.Address"`
-	Customer *gen.Customer `json:"*Gen.Customer"`
-}
 
 type (
 	Address struct {

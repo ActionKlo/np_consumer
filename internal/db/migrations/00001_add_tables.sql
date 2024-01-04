@@ -21,7 +21,7 @@ CREATE TABLE senders (
     sender_address_id uuid not null references addresses(address_id),
     name varchar not null,
     email varchar not null unique,
-    phone_number int not null unique
+    phone_number integer not null unique
 );
 
 
