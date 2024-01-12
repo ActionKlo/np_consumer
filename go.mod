@@ -3,11 +3,11 @@ module np_consumer
 go 1.21
 
 require (
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/spf13/viper v1.18.2
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.26.0
 )
 
 require (
