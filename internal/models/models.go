@@ -14,8 +14,8 @@ type (
 		Zip       string
 	}
 
-	Customer struct {
-		CustomerID  uuid.UUID
+	Receiver struct {
+		ReceiverID  uuid.UUID
 		Name        string
 		LastName    string
 		Email       string
@@ -31,21 +31,23 @@ type (
 		Address     Address
 	}
 
-	Event struct {
-		EventID          uuid.UUID
-		EventTime        time.Time
-		EventDescription string
+	Order struct {
+		OrderID uuid.UUID
+		Size    string
+		Weight  int
+		Count   int
+
+		Receiver Receiver
+		Sender   Sender
 	}
 
-	Shipment struct {
-		ShipmentID uuid.UUID
-		Size       string
-		Weight     float64
-		Count      int
-
-		Customer Customer
-		Sender   Sender
-
-		Event Event
+	Payload struct {
+		MessageID      uuid.UUID
+		EventID        uuid.UUID
+		EventType      string
+		EventTime      time.Time
+		TrackingNumber string
+		Order          Order
+		ReceiverID     uuid.UUID
 	}
 )

@@ -10,4 +10,4 @@ gooseReUp: gooseReset gooseUp
 startConsumer:
 	go run ./cmd/consumer/
 
-new: gooseReset gooseUp startConsumer
+new: gooseReUp startConsumer

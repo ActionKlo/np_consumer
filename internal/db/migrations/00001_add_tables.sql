@@ -1,59 +1,36 @@
 -- +goose Up
-CREATE TABLE addresses (
-    address_id uuid primary key not null unique default gen_random_uuid(),
-    country varchar not null,
-    street varchar not null,
-    city varchar not null,
-    zip_code varchar not null
-);
-
-CREATE TABLE customers (
-    customer_id uuid primary key not null unique default gen_random_uuid(),
-    customer_address_id uuid not null references addresses(address_id),
-    name varchar not null,
-    last_name varchar not null,
-    email varchar not null unique,
-    phone_number varchar not null unique
-);
-
-CREATE TABLE senders (
-    sender_id uuid primary key not null unique default gen_random_uuid(),
-    sender_address_id uuid not null references addresses(address_id),
-    name varchar not null,
-    email varchar not null unique,
-    phone_number integer not null unique
+CREATE TABLE settings (
+    settings_id uuid not null unique primary key default gen_random_uuid(),
+    receiver_id uuid not null unique,
+    url varchar not null
 );
 
 
-CREATE TABLE shipments (
-    shipment_id uuid primary key not null unique default gen_random_uuid(),
-    sender_id uuid not null references senders(sender_id),
-    customer_id uuid not null references customers(customer_id),
-    size varchar not null,
-    weight double precision not null,
-    count integer not null
+CREATE TABLE payloads (
+    message_id uuid not null unique primary key,
+    tracking_number varchar not null,
+    event_id uuid not null unique,
+    event_type varchar not null,
+    event_time timestamp not null default now(),
+    data jsonb not null,
+    receiver_id uuid not null
 );
 
-CREATE TABLE events (
-    event_id uuid primary key not null unique default gen_random_uuid(),
-    shipment_id uuid not null references shipments(shipment_id),
-    event_timestamp timestamp default now() not null,
-    event_description varchar not null
+
+INSERT INTO settings (
+    receiver_id, url
+) VALUES (
+    '10899528-d8a6-49c4-ab1f-2f02b98811dc', 'http://100.104.232.63:8084/8c5a5016-76ea-431e-8891-e1e60d4a274f'
 );
 
 -- +goose StatementBegin
 -- +goose StatementEnd
 
 -- +goose Down
-DROP TABLE events;
+DROP TABLE payloads;
 
-DROP TABLE shipments;
-
-DROP TABLE senders;
-
-DROP TABLE customers;
-
-DROP TABLE addresses;
+DROP TABLE settings;
 
 -- +goose StatementBegin
 -- +goose StatementEnd
+

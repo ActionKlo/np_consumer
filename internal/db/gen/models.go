@@ -5,48 +5,24 @@
 package gen
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-type Address struct {
-	AddressID uuid.UUID
-	Country   string
-	Street    string
-	City      string
-	ZipCode   string
+type Payload struct {
+	MessageID      uuid.UUID
+	TrackingNumber string
+	EventID        uuid.UUID
+	EventType      string
+	EventTime      time.Time
+	Data           json.RawMessage
+	ReceiverID     uuid.UUID
 }
 
-type Customer struct {
-	CustomerID        uuid.UUID
-	CustomerAddressID uuid.UUID
-	Name              string
-	LastName          string
-	Email             string
-	PhoneNumber       string
-}
-
-type Event struct {
-	EventID          uuid.UUID
-	ShipmentID       uuid.UUID
-	EventTimestamp   time.Time
-	EventDescription string
-}
-
-type Sender struct {
-	SenderID        uuid.UUID
-	SenderAddressID uuid.UUID
-	Name            string
-	Email           string
-	PhoneNumber     int32
-}
-
-type Shipment struct {
-	ShipmentID uuid.UUID
-	SenderID   uuid.UUID
-	CustomerID uuid.UUID
-	Size       string
-	Weight     float64
-	Count      int32
+type Setting struct {
+	SettingsID uuid.UUID
+	ReceiverID uuid.UUID
+	Url        string
 }

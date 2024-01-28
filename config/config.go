@@ -9,17 +9,22 @@ import (
 )
 
 type Config struct {
-	DBHost string `mapstructure:"DB_HOST"`
-	DBPort string `mapstructure:"DB_PORT"`
+	DB struct {
+		Host string `mapstructure:"DB_HOST"`
+		Port string `mapstructure:"DB_PORT"`
+	}
+	Postgres struct {
+		User     string `mapstructure:"POSTGRES_USER"`
+		Password string `mapstructure:"POSTGRES_PASSWORD"`
+		DB       string `mapstructure:"POSTGRES_DB"`
+	}
 
-	PostgresUser     string `mapstructure:"POSTGRES_USER"`
-	PostgresPassword string `mapstructure:"POSTGRES_PASSWORD"`
-	PostgresDB       string `mapstructure:"POSTGRES_DB"`
-
-	KafkaExternalHost string `mapstructure:"KAFKA_EXTERNAL_HOST"`
-	KafkaGroupID      string `mapstructure:"KAFKA_GROUPID"`
-	KafkaTopic        string `mapstructure:"KAFKA_TOPIC"`
-	KafkaPartition    int    `mapstructure:"KAFKA_PARTITION"`
+	Kafka struct {
+		ExternalHost string `mapstructure:"KAFKA_EXTERNAL_HOST"`
+		GroupID      string `mapstructure:"KAFKA_GROUPID"`
+		Topic        string `mapstructure:"KAFKA_TOPIC"`
+		Partition    int    `mapstructure:"KAFKA_PARTITION"`
+	}
 }
 
 type Services struct {
@@ -37,38 +42,45 @@ func New() *Config {
 	if err := v.ReadInConfig(); err != nil {
 		log.Fatal(err)
 	}
-	if err := v.Unmarshal(&appConfig); err != nil {
+
+	// TODO why doesn't work: v.Unmarshal(&appConfig)????
+	if err := v.Unmarshal(&appConfig.DB); err != nil {
 		log.Fatal(err)
 	}
+	if err := v.Unmarshal(&appConfig.Postgres); err != nil {
+		log.Fatal(err)
+	}
+	if err := v.Unmarshal(&appConfig.Kafka); err != nil {
+		log.Fatal(err)
+	}
+
 	return &appConfig
 }
 
-func (c *Config) NewKafkaConfig(logger *zap.Logger) *Services {
-	kafkaConfig := kafka.New(logger, &kafka.Config{
-		KafkaExternalHost: c.KafkaExternalHost,
-		KafkaGroupID:      c.KafkaGroupID,
-		KafkaTopic:        c.KafkaTopic,
-		KafkaPartition:    0,
+func (c *Config) NewServices(logger *zap.Logger) *Services {
+	kafkaService := kafka.New(logger, &kafka.Config{
+		Kafka: kafka.Kafka{
+			ExternalHost: c.Kafka.ExternalHost,
+			GroupID:      c.Kafka.GroupID,
+			Topic:        c.Kafka.Topic,
+			Partition:    c.Kafka.Partition,
+		},
+	})
+
+	DBService := db.Init(logger, &db.Config{
+		DB: db.DB{
+			Host: c.DB.Host,
+			Port: c.DB.Port,
+		},
+		Postgres: db.Postgres{
+			User:     c.Postgres.User,
+			Password: c.Postgres.Password,
+			DB:       c.Postgres.DB,
+		},
 	})
 
 	return &Services{
-		Kafka: kafkaConfig,
-	}
-}
-
-func (c *Config) NewDBConfig(logger *zap.Logger) *Services {
-	dbConfig, err := db.Init(logger, &db.Config{
-		DBHost:           c.DBHost,
-		DBPort:           c.DBPort,
-		PostgresUser:     c.PostgresUser,
-		PostgresPassword: c.PostgresPassword,
-		PostgresDB:       c.PostgresDB,
-	})
-	if err != nil {
-		logger.Error("for what?", zap.Error(err))
-	}
-
-	return &Services{
-		DB: dbConfig,
+		Kafka: kafkaService,
+		DB:    DBService,
 	}
 }
