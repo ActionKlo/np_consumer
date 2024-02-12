@@ -17,3 +17,7 @@ func (m MasterService) ListenIncomingMessages() {
 		m.Logger.Fatal("kafka reader fall down")
 	}
 }
+
+func (m MasterService) StartGRPCServer() {
+
+}
