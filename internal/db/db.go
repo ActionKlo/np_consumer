@@ -115,8 +115,18 @@ type ReceiverRepository interface {
 }
 
 func (d *Service) CreateReceiver(ctx context.Context, receiver *Receiver) (uuid.UUID, error) {
-	//TODO implement me
-	panic("implement me")
+	q := gen.New(stdlib.OpenDBFromPool(d.pool))
+
+	receiverID, err := q.CreateReceiver(ctx, gen.CreateReceiverParams{
+		ReceiverID: uuid.New(),
+		Url:        receiver.Url,
+	})
+	if err != nil {
+		d.logger.Error("failed to create receiver", zap.Error(err))
+		return uuid.Nil, err // TODO is it correct?
+	}
+
+	return receiverID, nil
 }
 
 func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (Receiver, error) {
