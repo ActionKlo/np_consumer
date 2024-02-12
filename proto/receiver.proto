@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option go_package = "./grpc_api";
+
+message Receiver {
+  string id = 1;
+  string url = 2;
+}
+
+service ReceiverService {
+  rpc CreateReceiver (CreateReceiverRequest) returns (CreateReceiverResponse);
+  rpc RetrieveReceiver (RetrieveReceiverRequest) returns (RetrieveReceiverResponse);
+  rpc UpdateReceiver (UpdateReceiverRequest) returns (UpdateReceiverResponse);
+  rpc DeleteReceiver (DeleteReceiverRequest) returns (DeleteReceiverResponse);
+}
+
+message CreateReceiverRequest {
+  Receiver receiver = 1;
+}
+
+message CreateReceiverResponse {
+  string rid = 1;
+}
+
+message RetrieveReceiverRequest {
+  string rid = 1;
+}
+
+message RetrieveReceiverResponse {
+  Receiver receiver = 1;
+}
+
+message UpdateReceiverRequest {
+  Receiver receiver = 1;
+}
+
+message UpdateReceiverResponse {
+  Receiver receiver = 1;
+}
+
+message DeleteReceiverRequest {
+  string rid = 1;
+}
+
+message DeleteReceiverResponse {}

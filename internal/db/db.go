@@ -101,3 +101,35 @@ func (d *Service) GetSettingsByReceiverID(receiverID uuid.UUID) string {
 
 	return url
 }
+
+type Receiver struct {
+	ReceiverID uuid.UUID `json:"receiver_id"`
+	Url        string    `json:"url"`
+}
+
+type ReceiverRepository interface {
+	CreateReceiver(ctx context.Context, receiver *Receiver) (uuid.UUID, error)
+	RetrieveReceiver(ctx context.Context, id uuid.UUID) (Receiver, error)
+	UpdateReceiver(ctx context.Context, receiver *Receiver) (Receiver, error)
+	DeleteReceiver(ctx context.Context, id uuid.UUID)
+}
+
+func (d *Service) CreateReceiver(ctx context.Context, receiver *Receiver) (uuid.UUID, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (Receiver, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d *Service) UpdateReceiver(ctx context.Context, receiver *Receiver) (Receiver, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d *Service) DeleteReceiver(ctx context.Context, id uuid.UUID) {
+	//TODO implement me
+	panic("implement me")
+}
