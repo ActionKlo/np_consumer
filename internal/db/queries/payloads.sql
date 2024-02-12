@@ -3,7 +3,7 @@ SELECT * FROM payloads;
 
 -- name: GetPayloadsWithSettings :many
 SELECT message_id, tracking_number, event_type, event_time, data, s.url
-FROM payloads JOIN settings s ON s.settings_id = payloads.settings_id;
+FROM payloads JOIN receivers s ON s.receiver_id = payloads.receiver_id;
 
 -- name: SavePayload :one
 INSERT INTO payloads (
