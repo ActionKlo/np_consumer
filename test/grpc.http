@@ -1,0 +1,33 @@
+# TODO this test is not working and idk why
+# "Test framework quit unexpectedly"
+GRPC localhost:50051/ReceiverService/CreateReceiver
+
+{
+
+}
+
+> {%
+    client.test("test empty request", function () {
+        client.log(response.status.toString())
+        client.assert(response.status === 15, "Response status is not 15");
+    })
+%}
+
+###
+
+GRPC localhost:50051/ReceiverService/CreateReceiver
+
+{
+  "receiver": {
+    "url": "urlFromTest"
+  }
+}
+
+> {%
+    client.test("test with url request", function () {
+        const statusCode = response.status
+        client.assert(response.status === 207, `Expected status code 200, but received ${statusCode}`);
+    })
+%}
+
+###
