@@ -1,5 +1,6 @@
 # TODO this test is not working and idk why
 # "Test framework quit unexpectedly"
+### Try create receiver with empty data, but HTPP-Client works bad with this type of error
 GRPC localhost:50051/ReceiverService/CreateReceiver
 
 {
@@ -13,7 +14,7 @@ GRPC localhost:50051/ReceiverService/CreateReceiver
     })
 %}
 
-###
+### Create new Receiver and set ID as global variable
 < {%
     client.global.clearAll()
 %}
@@ -21,21 +22,19 @@ GRPC localhost:50051/ReceiverService/CreateReceiver
 
 {
   "receiver": {
-    "url": "urlFromTest123"
+    "url": "urlFromTest"
   }
 }
 
 > {%
-    client.test("test with url request", function () {
+    client.test("create new receiver", function () {
         const statusCode = response.status
-        client.log(response.body.hasOwnProperty("rid").toString())
         client.global.set("receiverID", response.body.rid)
-        client.assert(response.status === 207, `Expected status code 200, but received ${statusCode}`);
+        client.assert(response.status === 207, `Expected status code 2007, but received ${statusCode}`); // Why "207"? must be 0 or "OK"
     })
 %}
 
-###
-
+### Retrieve Receiver by ID
 GRPC localhost:50051/ReceiverService/RetrieveReceiver
 
 {
@@ -43,9 +42,56 @@ GRPC localhost:50051/ReceiverService/RetrieveReceiver
 }
 
 > {%
-    client.test("test empty request", function () {
+    client.test("retrieve receiver by id", function () {
         client.assert(response.body.hasOwnProperty("receiver") === true, "Response doesn't have property \"receiver\"");
     })
 %}
 
-###
+### Update Receiver by ID
+GRPC localhost:50051/ReceiverService/UpdateReceiver
+
+{
+  "receiver": {
+    "id": {{ receiverID }},
+    "url": "updatedURL"
+  }
+}
+
+### Check chenges in Receiver
+GRPC localhost:50051/ReceiverService/RetrieveReceiver
+
+{
+  "rid": "{{ receiverID }}"
+}
+
+> {%
+    client.test("retrieve receiver by id", function () {
+        client.assert(response.body.receiver.url === "updatedURL", "url is not updated");
+    })
+%}
+
+### Delete Receiver by ID
+GRPC localhost:50051/ReceiverService/DeleteReceiver
+
+{
+  "rid": "{{ receiverID }}"
+}
+
+> {%
+    client.test("delete receiver by ID", function () {
+        client.assert(response.status === 207, `Expected status 207, but received ${response.status}`)
+    })
+%}
+
+### Check if Receiver deleted
+GRPC localhost:50051/ReceiverService/RetrieveReceiver
+
+{
+  "rid": "{{ receiverID }}"
+}
+
+> {%
+    client.test("retrieve receiver by ID after delete", function () {
+        client.assert(response.body.hasOwnProperty("receiver") === true, "Response doesn't have property \"receiver\"");
+    })
+%}
