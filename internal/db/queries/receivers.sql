@@ -20,5 +20,10 @@ INSERT INTO receivers (
 -- name: RetrieveReceiver :one
 SELECT * FROM receivers WHERE receiver_id = $1;
 
+-- name: UpdateReceiver :exec
+UPDATE receivers
+SET url = $2
+WHERE receiver_id = $1;
+
 -- name: DeleteReceiver :exec
 DELETE FROM receivers WHERE receiver_id = $1;

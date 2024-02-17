@@ -83,3 +83,19 @@ func (q *Queries) SaveSettings(ctx context.Context, arg SaveSettingsParams) (uui
 	err := row.Scan(&receiver_id)
 	return receiver_id, err
 }
+
+const updateReceiver = `-- name: UpdateReceiver :exec
+UPDATE receivers
+SET url = $2
+WHERE receiver_id = $1
+`
+
+type UpdateReceiverParams struct {
+	ReceiverID uuid.UUID
+	Url        string
+}
+
+func (q *Queries) UpdateReceiver(ctx context.Context, arg UpdateReceiverParams) error {
+	_, err := q.db.ExecContext(ctx, updateReceiver, arg.ReceiverID, arg.Url)
+	return err
+}
