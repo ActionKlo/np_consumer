@@ -34,9 +34,7 @@ message UpdateReceiverRequest {
   Receiver receiver = 1;
 }
 
-message UpdateReceiverResponse {
-  Receiver receiver = 1;
-}
+message UpdateReceiverResponse {}
 
 message DeleteReceiverRequest {
   string rid = 1;
