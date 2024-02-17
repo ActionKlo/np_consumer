@@ -2,6 +2,9 @@ package internal
 
 import (
 	"go.uber.org/zap"
+	"log"
+	"net"
+	"np_consumer/internal/api"
 	"np_consumer/internal/db"
 	"np_consumer/internal/kafka"
 )
@@ -19,5 +22,13 @@ func (m MasterService) ListenIncomingMessages() {
 }
 
 func (m MasterService) StartGRPCServer() {
+	listen, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		log.Fatal("failed to listen address", zap.Error(err))
+	}
+	srv := api.NewGRPCServer(m.DB)
 
+	if err = srv.Serve(listen); err != nil {
+		log.Fatal("failed to start server", zap.Error(err))
+	}
 }
