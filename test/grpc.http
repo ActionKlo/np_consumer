@@ -14,19 +14,37 @@ GRPC localhost:50051/ReceiverService/CreateReceiver
 %}
 
 ###
-
+< {%
+    client.global.clearAll()
+%}
 GRPC localhost:50051/ReceiverService/CreateReceiver
 
 {
   "receiver": {
-    "url": "urlFromTest"
+    "url": "urlFromTest123"
   }
 }
 
 > {%
     client.test("test with url request", function () {
         const statusCode = response.status
+        client.log(response.body.hasOwnProperty("rid").toString())
+        client.global.set("receiverID", response.body.rid)
         client.assert(response.status === 207, `Expected status code 200, but received ${statusCode}`);
+    })
+%}
+
+###
+
+GRPC localhost:50051/ReceiverService/RetrieveReceiver
+
+{
+  "rid": "{{ receiverID }}"
+}
+
+> {%
+    client.test("test empty request", function () {
+        client.assert(response.body.hasOwnProperty("receiver") === true, "Response doesn't have property \"receiver\"");
     })
 %}
 
