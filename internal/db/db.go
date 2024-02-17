@@ -106,7 +106,7 @@ func (d *Service) GetSettingsByReceiverID(receiverID uuid.UUID) string {
 type ReceiverRepository interface {
 	CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error)
 	RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Receiver, error)
-	UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) (*gapi.Receiver, error)
+	UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) error
 	DeleteReceiver(ctx context.Context, id uuid.UUID) error
 }
 
@@ -139,9 +139,23 @@ func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Rec
 	}, nil
 }
 
-func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) (*gapi.Receiver, error) {
-	//TODO implement me
-	panic("implement me")
+func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) error {
+	rid, err := uuid.Parse(receiver.Id)
+	if err != nil {
+		d.logger.Error("failed to parse uuid", zap.Error(err))
+		return err
+	}
+
+	q := gen.New(stdlib.OpenDBFromPool(d.pool))
+
+	if err = q.UpdateReceiver(ctx, gen.UpdateReceiverParams{
+		ReceiverID: rid,
+		Url:        receiver.Url,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (d *Service) DeleteReceiver(ctx context.Context, id uuid.UUID) error {

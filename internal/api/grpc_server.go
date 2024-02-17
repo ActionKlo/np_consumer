@@ -68,6 +68,21 @@ func (s *grpcServer) RetrieveReceiver(ctx context.Context, req *api.RetrieveRece
 	return &api.RetrieveReceiverResponse{Receiver: receiver}, nil
 }
 
+func (s *grpcServer) UpdateReceiver(ctx context.Context, req *api.UpdateReceiverRequest) (*api.UpdateReceiverResponse, error) {
+	fmt.Println("update receiver")
+
+	if req.Receiver == nil || req.Receiver.Url == "" || req.Receiver.Id == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "receiver data to update is wrong")
+	}
+
+	err := s.DB.UpdateReceiver(ctx, req.Receiver)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.UpdateReceiverResponse{}, nil
+}
+
 func (s *grpcServer) DeleteReceiver(ctx context.Context, req *api.DeleteReceiverRequest) (*api.DeleteReceiverResponse, error) {
 	fmt.Println("delete receiver")
 
