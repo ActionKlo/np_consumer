@@ -4,22 +4,25 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	api "np_consumer/internal/api/proto"
+	gapi "np_consumer/internal/api/proto"
 	"np_consumer/internal/db"
 )
 
 type grpcServer struct {
-	ReceiverRepository db.Service
 	api.UnimplementedReceiverServiceServer
+	DB     *db.Service
+	logger *zap.Logger
 }
 
-func NewGRPCServer(repository db.Service) *grpc.Server {
+func NewGRPCServer(DB *db.Service) *grpc.Server {
 	srv := grpcServer{
-		ReceiverRepository: repository,
+		DB: DB,
 	}
 
 	gsrv := grpc.NewServer()
@@ -38,15 +41,29 @@ func (s *grpcServer) CreateReceiver(ctx context.Context, req *api.CreateReceiver
 		return nil, err
 	}
 
-	receiver := &db.Receiver{
-		ReceiverID: uuid.New(),
-		Url:        req.Receiver.Url,
+	receiver := &gapi.Receiver{
+		Id:  uuid.New().String(),
+		Url: req.Receiver.Url,
 	}
 
-	rid, err := s.ReceiverRepository.CreateReceiver(ctx, receiver)
+	rid, err := s.DB.CreateReceiver(ctx, receiver)
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.CreateReceiverResponse{Rid: rid.String()}, nil
+}
+
+func (s *grpcServer) RetrieveReceiver(ctx context.Context, req *api.RetrieveReceiverRequest) (*api.RetrieveReceiverResponse, error) {
+	fmt.Println("retrieve receiver")
+
+	// TODO check empty data
+
+	var receiver *gapi.Receiver
+	receiver, err := s.DB.RetrieveReceiver(ctx, uuid.MustParse(req.Rid))
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.RetrieveReceiverResponse{Receiver: receiver}, nil
 }

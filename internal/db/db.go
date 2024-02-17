@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
+	gapi "np_consumer/internal/api/proto"
 	"np_consumer/internal/db/gen"
 	"np_consumer/internal/models"
 )
@@ -102,19 +103,14 @@ func (d *Service) GetSettingsByReceiverID(receiverID uuid.UUID) string {
 	return url
 }
 
-type Receiver struct {
-	ReceiverID uuid.UUID `json:"receiver_id"`
-	Url        string    `json:"url"`
-}
-
 type ReceiverRepository interface {
-	CreateReceiver(ctx context.Context, receiver *Receiver) (uuid.UUID, error)
-	RetrieveReceiver(ctx context.Context, id uuid.UUID) (Receiver, error)
-	UpdateReceiver(ctx context.Context, receiver *Receiver) (Receiver, error)
+	CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error)
+	RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Receiver, error)
+	UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) (*gapi.Receiver, error)
 	DeleteReceiver(ctx context.Context, id uuid.UUID)
 }
 
-func (d *Service) CreateReceiver(ctx context.Context, receiver *Receiver) (uuid.UUID, error) {
+func (d *Service) CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error) {
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 
 	receiverID, err := q.CreateReceiver(ctx, gen.CreateReceiverParams{
@@ -129,12 +125,21 @@ func (d *Service) CreateReceiver(ctx context.Context, receiver *Receiver) (uuid.
 	return receiverID, nil
 }
 
-func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (Receiver, error) {
-	//TODO implement me
-	panic("implement me")
+func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Receiver, error) {
+	q := gen.New(stdlib.OpenDBFromPool(d.pool))
+
+	//var receiver *gapi.Receiver
+	receiver, err := q.RetrieveReceiver(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &gapi.Receiver{
+		Id:  receiver.ReceiverID.String(),
+		Url: receiver.Url,
+	}, nil
 }
 
-func (d *Service) UpdateReceiver(ctx context.Context, receiver *Receiver) (Receiver, error) {
+func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) (*gapi.Receiver, error) {
 	//TODO implement me
 	panic("implement me")
 }
