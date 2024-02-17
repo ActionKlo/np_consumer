@@ -67,3 +67,23 @@ func (s *grpcServer) RetrieveReceiver(ctx context.Context, req *api.RetrieveRece
 
 	return &api.RetrieveReceiverResponse{Receiver: receiver}, nil
 }
+
+func (s *grpcServer) DeleteReceiver(ctx context.Context, req *api.DeleteReceiverRequest) (*api.DeleteReceiverResponse, error) {
+	fmt.Println("delete receiver")
+
+	if req.Rid == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "the id filed if empty")
+	}
+
+	rid, err := uuid.Parse(req.Rid)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.DB.DeleteReceiver(ctx, rid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.DeleteReceiverResponse{}, nil
+}

@@ -107,7 +107,7 @@ type ReceiverRepository interface {
 	CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error)
 	RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Receiver, error)
 	UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) (*gapi.Receiver, error)
-	DeleteReceiver(ctx context.Context, id uuid.UUID)
+	DeleteReceiver(ctx context.Context, id uuid.UUID) error
 }
 
 func (d *Service) CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error) {
@@ -144,7 +144,13 @@ func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) (
 	panic("implement me")
 }
 
-func (d *Service) DeleteReceiver(ctx context.Context, id uuid.UUID) {
-	//TODO implement me
-	panic("implement me")
+func (d *Service) DeleteReceiver(ctx context.Context, id uuid.UUID) error {
+	q := gen.New(stdlib.OpenDBFromPool(d.pool))
+
+	err := q.DeleteReceiver(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
