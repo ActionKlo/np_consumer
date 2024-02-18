@@ -3,11 +3,11 @@ package wh
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"np_consumer/internal/models"
-	"strconv"
 	"time"
 )
 
@@ -52,6 +52,10 @@ func SendNotification(url string, ms models.Payload, logger *zap.Logger) error {
 		}
 	}(resp.Body)
 
-	logger.Info("webhooks status code: " + strconv.Itoa(resp.StatusCode))
+	if resp.StatusCode != 200 {
+		logger.Error("webhooks status code is not 200", zap.Int("statusCode", resp.StatusCode))
+		return errors.New("status code is not 200")
+	}
+
 	return nil
 }
