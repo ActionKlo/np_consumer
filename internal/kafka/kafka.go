@@ -45,7 +45,7 @@ func New(logger *zap.Logger, config *Config) *Service {
 	}
 }
 
-func (k *Service) Reader(dbService *db.Service) error {
+func (k *Service) Reader(dbService *db.PostgresService) error {
 	k.logger.Info("kafka consumer started")
 
 	for {

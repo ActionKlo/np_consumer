@@ -9,7 +9,7 @@ import (
 )
 
 type MasterService struct {
-	DB     *db.Service
+	DB     *db.PostgresService
 	Kafka  *kafka.Service
 	Logger *zap.Logger
 }

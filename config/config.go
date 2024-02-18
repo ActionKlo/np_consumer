@@ -29,7 +29,7 @@ type Config struct {
 
 type Services struct {
 	Kafka *kafka.Service
-	DB    *db.Service
+	DB    *db.PostgresService
 }
 
 func New() *Config {

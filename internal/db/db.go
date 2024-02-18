@@ -35,13 +35,13 @@ type (
 	}
 )
 
-type Service struct {
+type PostgresService struct {
 	pool   *pgxpool.Pool
 	logger *zap.Logger
 	config *Config
 }
 
-func Init(logger *zap.Logger, cfg *Config) *Service {
+func Init(logger *zap.Logger, cfg *Config) *PostgresService {
 	urlDB := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		cfg.Postgres.User,
 		cfg.Postgres.Password,
@@ -60,13 +60,13 @@ func Init(logger *zap.Logger, cfg *Config) *Service {
 		logger.Fatal("failed to create pool", zap.Error(err))
 	}
 
-	return &Service{
+	return &PostgresService{
 		pool:   dbPool,
 		logger: logger,
 	}
 }
 
-func (d *Service) SavePayload(pl models.Payload) error {
+func (d *PostgresService) SavePayload(pl models.Payload) error {
 	data, err := json.Marshal(pl.Order)
 	if err != nil {
 		d.logger.Error("failed to marshal order data", zap.Error(err))
@@ -92,7 +92,7 @@ func (d *Service) SavePayload(pl models.Payload) error {
 	return nil
 }
 
-func (d *Service) GetSettingsByReceiverID(receiverID uuid.UUID) string {
+func (d *PostgresService) GetSettingsByReceiverID(receiverID uuid.UUID) string {
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 	url, err := q.GetSettingsByReceiverID(context.TODO(), receiverID)
 	if err != nil {
@@ -110,7 +110,7 @@ type ReceiverRepository interface {
 	DeleteReceiver(ctx context.Context, id uuid.UUID) error
 }
 
-func (d *Service) CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error) {
+func (d *PostgresService) CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (uuid.UUID, error) {
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 
 	receiverID, err := q.CreateReceiver(ctx, gen.CreateReceiverParams{
@@ -125,7 +125,7 @@ func (d *Service) CreateReceiver(ctx context.Context, receiver *gapi.Receiver) (
 	return receiverID, nil
 }
 
-func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Receiver, error) {
+func (d *PostgresService) RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Receiver, error) {
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 
 	//var receiver *gapi.Receiver
@@ -140,7 +140,7 @@ func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Rec
 	}, nil
 }
 
-func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) error {
+func (d *PostgresService) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) error {
 	rid, err := uuid.Parse(receiver.Id)
 	if err != nil {
 		d.logger.Error("failed to parse uuid", zap.Error(err))
@@ -166,7 +166,7 @@ func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) e
 	return nil
 }
 
-func (d *Service) DeleteReceiver(ctx context.Context, id uuid.UUID) error {
+func (d *PostgresService) DeleteReceiver(ctx context.Context, id uuid.UUID) error {
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 
 	rows, err := q.DeleteReceiver(ctx, id)
