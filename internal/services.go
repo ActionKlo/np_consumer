@@ -26,7 +26,9 @@ func (m MasterService) StartGRPCServer() {
 	if err != nil {
 		log.Fatal("failed to listen address", zap.Error(err))
 	}
-	srv := api.NewGRPCServer(m.DB)
+	srv := api.NewGRPCServer(m.DB, m.Logger)
+
+	m.Logger.Info("gRPC server should been started")
 
 	if err = srv.Serve(listen); err != nil {
 		log.Fatal("failed to start server", zap.Error(err))
