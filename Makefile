@@ -13,9 +13,9 @@ startConsumer:
 #grpc
 grpc:
 	protoc ./proto/*.proto \
-		--go_out=./internal/api \
+		--go_out=. \
 		--go_opt=paths=source_relative \
-		--go-grpc_out=./internal/api \
+		--go-grpc_out=. \
 		--go-grpc_opt=paths=source_relative
 
 new: gooseReUp startConsumer

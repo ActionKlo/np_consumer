@@ -8,13 +8,12 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	api "np_consumer/internal/api/proto"
-	gapi "np_consumer/internal/api/proto"
 	"np_consumer/internal/db"
+	gapi "np_consumer/proto"
 )
 
 type grpcServer struct {
-	api.UnimplementedReceiverServiceServer
+	gapi.UnimplementedReceiverServiceServer
 	DB     *db.Service
 	logger *zap.Logger
 }
@@ -26,14 +25,14 @@ func NewGRPCServer(DB *db.Service, logger *zap.Logger) *grpc.Server {
 	}
 
 	gsrv := grpc.NewServer()
-	api.RegisterReceiverServiceServer(gsrv, &srv)
+	gapi.RegisterReceiverServiceServer(gsrv, &srv)
 
 	reflection.Register(gsrv)
 
 	return gsrv
 }
 
-func (s *grpcServer) CreateReceiver(ctx context.Context, req *api.CreateReceiverRequest) (*api.CreateReceiverResponse, error) {
+func (s *grpcServer) CreateReceiver(ctx context.Context, req *gapi.CreateReceiverRequest) (*gapi.CreateReceiverResponse, error) {
 	s.logger.Debug("call CreateReceiver method with data", zap.Any("data", req))
 
 	if req.Receiver == nil {
@@ -53,10 +52,10 @@ func (s *grpcServer) CreateReceiver(ctx context.Context, req *api.CreateReceiver
 	}
 
 	s.logger.Debug("receiver created successful", zap.Any("receiver_id", rid))
-	return &api.CreateReceiverResponse{Rid: rid.String()}, nil
+	return &gapi.CreateReceiverResponse{Rid: rid.String()}, nil
 }
 
-func (s *grpcServer) RetrieveReceiver(ctx context.Context, req *api.RetrieveReceiverRequest) (*api.RetrieveReceiverResponse, error) {
+func (s *grpcServer) RetrieveReceiver(ctx context.Context, req *gapi.RetrieveReceiverRequest) (*gapi.RetrieveReceiverResponse, error) {
 	s.logger.Debug("call RetrieveReceiver method with data", zap.Any("data", req))
 
 	rid, err := uuid.Parse(req.Rid)
@@ -73,10 +72,10 @@ func (s *grpcServer) RetrieveReceiver(ctx context.Context, req *api.RetrieveRece
 	}
 
 	s.logger.Debug("receiver retrieve successful", zap.Any("receiver", receiver))
-	return &api.RetrieveReceiverResponse{Receiver: receiver}, nil
+	return &gapi.RetrieveReceiverResponse{Receiver: receiver}, nil
 }
 
-func (s *grpcServer) UpdateReceiver(ctx context.Context, req *api.UpdateReceiverRequest) (*api.UpdateReceiverResponse, error) {
+func (s *grpcServer) UpdateReceiver(ctx context.Context, req *gapi.UpdateReceiverRequest) (*gapi.UpdateReceiverResponse, error) {
 	s.logger.Debug("call UpdateReceiver method with data", zap.Any("data", req))
 
 	if req.Receiver == nil || req.Receiver.Url == "" || req.Receiver.Id == "" {
@@ -91,10 +90,10 @@ func (s *grpcServer) UpdateReceiver(ctx context.Context, req *api.UpdateReceiver
 	}
 
 	s.logger.Debug("receiver updated successful")
-	return &api.UpdateReceiverResponse{}, nil
+	return &gapi.UpdateReceiverResponse{}, nil
 }
 
-func (s *grpcServer) DeleteReceiver(ctx context.Context, req *api.DeleteReceiverRequest) (*api.DeleteReceiverResponse, error) {
+func (s *grpcServer) DeleteReceiver(ctx context.Context, req *gapi.DeleteReceiverRequest) (*gapi.DeleteReceiverResponse, error) {
 	s.logger.Debug("call DeleteReceiver method with data", zap.Any("data", req))
 
 	rid, err := uuid.Parse(req.Rid)
@@ -110,5 +109,5 @@ func (s *grpcServer) DeleteReceiver(ctx context.Context, req *api.DeleteReceiver
 	}
 
 	s.logger.Debug("receiver deleted successful")
-	return &api.DeleteReceiverResponse{}, nil
+	return &gapi.DeleteReceiverResponse{}, nil
 }

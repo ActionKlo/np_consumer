@@ -8,9 +8,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
-	gapi "np_consumer/internal/api/proto"
 	"np_consumer/internal/db/gen"
 	"np_consumer/internal/models"
+	gapi "np_consumer/proto"
 )
 
 const (
