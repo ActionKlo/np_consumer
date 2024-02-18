@@ -33,13 +33,16 @@ func (q *Queries) CreateReceiver(ctx context.Context, arg CreateReceiverParams) 
 	return receiver_id, err
 }
 
-const deleteReceiver = `-- name: DeleteReceiver :exec
+const deleteReceiver = `-- name: DeleteReceiver :execrows
 DELETE FROM receivers WHERE receiver_id = $1
 `
 
-func (q *Queries) DeleteReceiver(ctx context.Context, receiverID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteReceiver, receiverID)
-	return err
+func (q *Queries) DeleteReceiver(ctx context.Context, receiverID uuid.UUID) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteReceiver, receiverID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const getSettingsByReceiverID = `-- name: GetSettingsByReceiverID :one
@@ -84,7 +87,7 @@ func (q *Queries) SaveSettings(ctx context.Context, arg SaveSettingsParams) (uui
 	return receiver_id, err
 }
 
-const updateReceiver = `-- name: UpdateReceiver :exec
+const updateReceiver = `-- name: UpdateReceiver :execrows
 UPDATE receivers
 SET url = $2
 WHERE receiver_id = $1
@@ -95,7 +98,10 @@ type UpdateReceiverParams struct {
 	Url        string
 }
 
-func (q *Queries) UpdateReceiver(ctx context.Context, arg UpdateReceiverParams) error {
-	_, err := q.db.ExecContext(ctx, updateReceiver, arg.ReceiverID, arg.Url)
-	return err
+func (q *Queries) UpdateReceiver(ctx context.Context, arg UpdateReceiverParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateReceiver, arg.ReceiverID, arg.Url)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

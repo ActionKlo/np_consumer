@@ -131,6 +131,7 @@ func (d *Service) RetrieveReceiver(ctx context.Context, id uuid.UUID) (*gapi.Rec
 	//var receiver *gapi.Receiver
 	receiver, err := q.RetrieveReceiver(ctx, id)
 	if err != nil {
+		d.logger.Error("failed to retrieve receiver", zap.Error(err))
 		return nil, err
 	}
 	return &gapi.Receiver{
@@ -148,11 +149,18 @@ func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) e
 
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 
-	if err = q.UpdateReceiver(ctx, gen.UpdateReceiverParams{
+	rows, err := q.UpdateReceiver(ctx, gen.UpdateReceiverParams{
 		ReceiverID: rid,
 		Url:        receiver.Url,
-	}); err != nil {
+	})
+	if err != nil {
+		d.logger.Error("filed to update receiver", zap.Error(err))
 		return err
+	}
+
+	if rows == 0 {
+		// TODO should I return error?
+		d.logger.Debug("receiver not found")
 	}
 
 	return nil
@@ -161,9 +169,15 @@ func (d *Service) UpdateReceiver(ctx context.Context, receiver *gapi.Receiver) e
 func (d *Service) DeleteReceiver(ctx context.Context, id uuid.UUID) error {
 	q := gen.New(stdlib.OpenDBFromPool(d.pool))
 
-	err := q.DeleteReceiver(ctx, id)
+	rows, err := q.DeleteReceiver(ctx, id)
 	if err != nil {
+		d.logger.Error("filed to delete receiver", zap.Error(err))
 		return err
+	}
+
+	if rows == 0 {
+		// TODO should I return error?
+		d.logger.Debug("receiver not found")
 	}
 
 	return nil
